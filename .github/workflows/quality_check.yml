@@ -1,0 +1,32 @@
+name: Quality Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install flake8 pytest coverage
+
+      - name: Run flake8
+        run: |
+          mkdir -p quality_check
+          flake8 app.py > quality_check/flake8_result.txt || true
+
+      - name: Run tests and coverage
+        run: |
+          coverage run -m pytest
+          coverage report -m > quality_check/coverage_result.txt
